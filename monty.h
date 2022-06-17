@@ -3,7 +3,32 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <string.h>
+#include <ctype.h>
+#define TOK_DELIM " \t\r\n\v\a"
+
+/**
+ * struct global - store neccesary variables
+ * @words: array with the words of the instruction
+ * @buffer: current line processed
+ * @fd: file to process
+ * @is_stack: flag for queue or stack
+ *
+ * Description: store neccesary variables
+ */
+typedef struct global
+{
+	char **words;
+	char *buffer;
+	FILE *fd;
+	int is_stack;
+} global_t;
+
+extern global_t global_var;
 
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
@@ -35,43 +60,31 @@ typedef struct instruction_s
 	void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
-/**
- * struct var_global - structure with the first addres of elements
- * @first: Pointer to stack
- * @buffer: The buffer
- * @file: The file descriptor of fopen.
- */
-typedef struct var_global
-{
-	stack_t **first;
-	char *buffer;
-	FILE *file;
-} global_t;
-extern global_t header;
-
-/* Main functions */
-void start_stack(stack_t **stack);
-void function_select(stack_t **stack, unsigned int line_number, char *command);
-void find_file(char *path, stack_t **stack);
-int manage_error(char *value, unsigned int line_number);
-
-/* Command functions */
-void push(stack_t **stack, unsigned int line_number);
-void pall(stack_t **stack, unsigned int line_number);
-void pint(stack_t **stack, unsigned int line_number);
-void pop(stack_t **stack, unsigned int line_number);
-void sub(stack_t **stack, unsigned int line_number);
-void _div(stack_t **stack, unsigned int line_number);
-void _mul(stack_t **stack, unsigned int line_number);
-void _mod(stack_t **stack, unsigned int line_number);
-void pchar(stack_t **stack, unsigned int line_number);
-void nop(stack_t **stack, unsigned int line_number);
-void swap(stack_t **stack, unsigned int line_number);
-void add(stack_t **stack, unsigned int line_number);
-void _rotl(stack_t **stack, unsigned int line_number);
-void _rotr(stack_t **stack, unsigned int line_number);
-void pstr(stack_t **stack, unsigned int line_number);
-
-void free_all(void);
+size_t countwords(char *in);
+char **split_line(char *line, size_t len, stack_t **stack);
+void get_func(stack_t **stack, unsigned int line_number);
+void f_push(stack_t **stack, unsigned int line_number);
+void f_pall(stack_t **stack, unsigned int line_number);
+void f_pint(stack_t **stack, unsigned int line_number);
+void f_pop(stack_t **stack, unsigned int line_number);
+void f_swap(stack_t **stack, unsigned int line_number);
+void f_add(stack_t **stack, unsigned int line_number);
+void f_sub(stack_t **stack, unsigned int line_number);
+void f_div(stack_t **stack, unsigned int line_number);
+void f_mul(stack_t **stack, unsigned int line_number);
+void f_mod(stack_t **stack, unsigned int line_number);
+void f_pchar(stack_t **stack, unsigned int line_number);
+void f_pstr(stack_t **stack, unsigned int line_number);
+void f_rotl(stack_t **stack, unsigned int line_number);
+void f_rotr(stack_t **stack, unsigned int line_number);
+void f_stack(stack_t **stack, unsigned int line_number);
+void print_number(size_t n);
+void print_arr(char **arr);
+void free_loop(char **arr);
+void error_malloc(stack_t **stack);
+stack_t *add_node_end(stack_t **head, const int n);
+stack_t *add_node_head(stack_t **head, const int n);
+void free_stack(stack_t *head);
+instruction_t definition(int i);
 
 #endif
